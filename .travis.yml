@@ -15,7 +15,7 @@ script:
   - ./scripts/rabbitmq/rabbitmq-status.sh check_aliveness
 notifications:
   email:
-    recipients:
-      - mcintoshj@gmail.com
+    #    recipients:
+    #  - mcintoshj@gmail.com
     on_failure: always
     on_success: change
