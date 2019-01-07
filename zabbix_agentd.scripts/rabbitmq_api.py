@@ -225,7 +225,7 @@ class RabbitMQAPI(object):
         for node_data in node_info:
             if node_name in node_data['name'] or len(node_info) == 1:
                 return node_data.get(item)
-        return 'Not Found'
+        return 'ZBX_NOTSUPPORTED. Item not found'
 
 
 def main():
