@@ -48,6 +48,7 @@ class RabbitMQAPI(object):
             opener = urllib2.build_opener(pass_handler, urllib2.HTTPSHandler(context=ctx))
             urllib2.install_opener(opener)
             content = urllib2.urlopen(url).read()
+            opener.close()
         except urllib2.HTTPError as err:
             if err.code == 404:
                 return "ZBX_NOTSUPPORTED: HTTP 404"
