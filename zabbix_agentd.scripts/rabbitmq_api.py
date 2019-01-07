@@ -44,9 +44,15 @@ class RabbitMQAPI(object):
             ctx.check_hostname = False
             ctx.verify_mode = ssl.CERT_NONE
 
-        opener = urllib2.build_opener(pass_handler, urllib2.HTTPSHandler(context=ctx))
-        urllib2.install_opener(opener)
-        content = urllib2.urlopen(url).read()
+        try:
+            opener = urllib2.build_opener(pass_handler, urllib2.HTTPSHandler(context=ctx))
+            urllib2.install_opener(opener)
+            content = urllib2.urlopen(url).read()
+        except urllib2.HTTPError as err:
+            if err.code == 404:
+                return "ZBX_NOTSUPPORTED: HTTP 404"
+            else:
+                raise err
 
         return json.loads(content)
 
@@ -140,20 +146,23 @@ class RabbitMQAPI(object):
 
         rdatafile = tempfile.NamedTemporaryFile(delete=False)
 
-        for shovel in self.call_api('shovels'):
-            success = False
-            for _filter in filters:
-                check = [(x, y) for x, y in shovel.items() if x in _filter]
-                shared_items = set(_filter.items()).intersection(check)
-                if len(shared_items) == len(_filter):
-                    success = True
-                    break
-            if success:
-                key = '"rabbitmq.shovels[{0},shovel_{1},{2}]"'
-                key = key.format(shovel['vhost'], 'state', shovel['name'])
-                value = shovel.get('state', 0)
-                rdatafile.write("- %s %s\n" % (key, value))
-
+        shovels_api = self.call_api('shovels')
+        if shovels_api == "ZBX_NOTSUPPORTED: HTTP 404":
+            return "[]"
+        else:
+            for shovel in shovels_api:
+                success = False
+                for _filter in filters:
+                    check = [(x, y) for x, y in shovel.items() if x in _filter]
+                    shared_items = set(_filter.items()).intersection(check)
+                    if len(shared_items) == len(_filter):
+                        success = True
+                        break
+                if success:
+                    key = '"rabbitmq.shovels[{0},shovel_{1},{2}]"'
+                    key = key.format(shovel['vhost'], 'state', shovel['name'])
+                    value = shovel.get('state', 0)
+                    rdatafile.write("- %s %s\n" % (key, value))
 
         rdatafile.close()
         return_code = self._send_data(rdatafile)
