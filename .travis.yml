@@ -3,10 +3,16 @@ services:
   - rabbitmq
 python:
   - "2.7"
+  
+env:
+  - USERNAME=guest
+  - PASSWORD=guest
+  - HOSTNAME=localhost
 
 before_install: ./tests/setup_auth.sh
 
 script:
+  - zabbix_agentd.scripts/rabbitmq_api.py --username=$USERNAME --password=PASSWORD --hostname=$HOSTNAME --check=check_aliveness
   - py.test
   - ./scripts/rabbitmq/list_rabbit_queues.sh
   - ./scripts/rabbitmq/list_rabbit_nodes.sh
