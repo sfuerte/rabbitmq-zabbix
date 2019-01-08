@@ -1,6 +1,6 @@
 rabbitmq-zabbix
 =======================
-[![Build Status](https://travis-ci.com/sfuerte/zbx-rabbitmq?branch=master)](https://travis-ci.com/sfuerte/zbx-rabbitmq)
+[![Build Status](https://travis-ci.com/sfuerte/zbx-rabbitmq.svg?branch=master)](https://travis-ci.com/sfuerte/zbx-rabbitmq)
 
 Template and checks to monitor rabbitmq queues and server via Zabbix.
 
